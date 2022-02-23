@@ -171,7 +171,7 @@ class Api:
             params["key"] = self.api_token
 
         try:
-            resp = post(url, data=data, params=params, files=files)
+            resp = post(url, data=data, params=params, files=files, headers={"content-type":"application/json"})
             if resp.status_code == 401:
                 error_msg = resp.json()["message"]
                 raise ApiAuthorizationError(
