@@ -140,7 +140,7 @@ class Api:
                 "ERROR: GET - Could not establish connection to api {0}.".format(url)
             )
 
-    def post_request(self, url, data=None, auth=False, params=None, files=None):
+    def post_request(self, url, data=None, auth=False, params=None, files=None, header=None):
         """Make a POST request.
 
         params will be added as key-value pairs to the URL.
@@ -170,8 +170,13 @@ class Api:
         if self.api_token:
             params["key"] = self.api_token
 
+        if header:
+            kwargs = {"headers": {"content-type": header}}
+        else:
+            kwargs = {}
+
         try:
-            resp = post(url, data=data, params=params, files=files, headers={"content-type":"application/json"})
+            resp = post(url, data=data, params=params, files=files, **kwargs)
             if resp.status_code == 401:
                 error_msg = resp.json()["message"]
                 raise ApiAuthorizationError(
@@ -1196,7 +1201,7 @@ class NativeApi(Api):
             url = "{0}/dataverses/{1}/datasets".format(
                 self.base_url_api_native, dataverse
             )
-        resp = self.post_request(url, metadata, auth)
+        resp = self.post_request(url, metadata, auth, header="application/json")
 
         if resp.status_code == 404:
             error_msg = resp.json()["message"]
