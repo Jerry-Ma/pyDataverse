@@ -2,16 +2,19 @@
 import json
 import subprocess as sp
 
-from requests import ConnectionError, Response, delete, get, post, put
+from requests import ConnectionError
+from requests import delete
+from requests import get
+from requests import post
+from requests import put
+from requests import Response
 
-from pyDataverse.exceptions import (
-    ApiAuthorizationError,
-    ApiUrlError,
-    DatasetNotFoundError,
-    DataverseNotEmptyError,
-    DataverseNotFoundError,
-    OperationFailedError,
-)
+from pyDataverse.exceptions import ApiAuthorizationError
+from pyDataverse.exceptions import ApiUrlError
+from pyDataverse.exceptions import DatasetNotFoundError
+from pyDataverse.exceptions import DataverseNotEmptyError
+from pyDataverse.exceptions import DataverseNotFoundError
+from pyDataverse.exceptions import OperationFailedError
 
 
 class Api:
@@ -1644,7 +1647,7 @@ class NativeApi(Api):
             # CHECK: Its not really clear, if the version query can also be done via ID.
         return self.get_request(url, auth=auth)
 
-    def upload_datafile(self, identifier, filename, json_str=None, is_pid=True):
+    def upload_datafile(self, identifier, filename, json_str=None, is_pid=True, content_type='application/octet-stream'):
         """Add file to a dataset.
 
         Add a file to an existing Dataset. Description and tags are optional:
@@ -1671,6 +1674,8 @@ class NativeApi(Api):
             Metadata as JSON string.
         is_pid : bool
             ``True`` to use persistent identifier. ``False``, if not.
+        content_type : str
+            MIME type. Defaults to ``application/octet-stream``; this will prompt Dataverse to attempt to identify the MIME type of the file more accurately. 
 
         Returns
         -------
@@ -1685,7 +1690,7 @@ class NativeApi(Api):
         else:
             url += "/datasets/{0}/add".format(identifier)
 
-        files = {"file": open(filename, "rb")}
+        files = {"file": (filename, open(filename, "rb"), content_type)}
         return self.post_request(
             url, data={"jsonData": json_str}, files=files, auth=True
         )
@@ -2088,6 +2093,7 @@ class NativeApi(Api):
         - Unify tree and models
 
         """
+        # print(self.base_url_api)
         children = []
 
         if children_types is None:
@@ -2186,7 +2192,7 @@ class NativeApi(Api):
 
         https://guides.dataverse.org/en/latest/api/native-api.html#get-user-information-in-json-format
         """
-        url = f"{self.base_url}/users/:me"
+        url = f"{self.base_url_api_native}/users/:me"
         return self.get_request(url, auth=True)
 
     def redetect_file_type(
